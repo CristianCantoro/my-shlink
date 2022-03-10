@@ -1,0 +1,52 @@
+server {
+    server_name www.$DOMAIN;
+    return 301 $scheme://$host$request_uri;
+}
+
+server {
+    listen      80;
+    server_name $DOMAIN $ADMIN_SUBDOMAIN.$DOMAIN;
+
+    # rewrite all non-ssl requests to ssl.
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+
+    server_name $DOMAIN;
+    charset utf-8;
+
+    location / {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://shlink:8080/;
+        proxy_read_timeout 90s;
+    }
+
+    ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
+}
+
+server {
+    listen 443 ssl;
+    server_name $ADMIN_SUBDOMAIN.$DOMAIN;
+    charset utf-8;
+
+    location / {
+        auth_basic           "Restricted access";
+        auth_basic_user_file /etc/nginx/.htpasswd;
+ 
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://web:80/;
+        proxy_read_timeout 90s;
+    }
+
+    ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
+}

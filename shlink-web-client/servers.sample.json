@@ -1,0 +1,7 @@
+[
+  {
+    "name": "example.com",
+    "url": "http://localhost:8080",
+    "apiKey": "<my_api_key>"
+  }
+]

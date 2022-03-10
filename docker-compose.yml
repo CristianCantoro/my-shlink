@@ -1,0 +1,58 @@
+version: '3.8'
+services:
+  db:
+    container_name: shlink-db
+    image: postgres:bullseye
+    environment:
+      - POSTGRES_USER=shlink
+      - POSTGRES_DB=shlink-db
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shlink -d shlink-db"]
+      interval: 5s
+      timeout: 2s
+      retries: 2
+  shlink:
+    container_name: shlink-service
+    image: shlinkio/shlink:stable
+    environment:
+      - DEFAULT_DOMAIN=${DOMAIN}
+      - IS_HTTPS_ENABLED=true
+      - GEOLITE_LICENSE_KEY=${GEOLITE_LICENSE_KEY}
+        # DB_DRIVER (mandatory)
+      - DB_DRIVER=postgres
+        # DB_NAME (optional)
+      - DB_NAME=shlink-db
+        # DB_USER (mandatory)
+      - DB_USER=shlink
+        # DB_PASSWORD (mandatory)
+      - DB_PASSWORD=${DB_PASSWORD}
+        # DB_HOST (mandatory)
+      - DB_HOST=db
+        # DB_PORT (optional)
+      - DB_PORT=5432
+    entrypoint: ["/wait-for.sh", "db:5432", "-t", "15", "--", "/bin/sh", "./docker-entrypoint.sh"]
+    ports:
+      - 127.0.0.1:9980:8080
+    volumes:
+      - ./wait-for/wait-for:/wait-for.sh:ro
+    depends_on:
+      - db
+    links:
+      - db
+  web:
+    container_name: shlink-web
+    image: shlinkio/shlink-web-client:stable
+    volumes:
+      - ./shlink-web-client/servers.json:/usr/share/nginx/html/servers.json
+    ports:
+      - 127.0.0.1:9981:80
+    depends_on:
+      - shlink
+    links:
+      - shlink
+
+volumes:
+  db-data:

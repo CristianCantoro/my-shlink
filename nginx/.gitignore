@@ -1,0 +1,8 @@
+# ignore .htpasswd file with passwords
+.htpasswd
+
+# ignore config file
+*.conf
+
+# ignore local (testing) var dir
+var/
