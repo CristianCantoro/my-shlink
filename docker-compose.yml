@@ -14,6 +14,8 @@ services:
       interval: 5s
       timeout: 2s
       retries: 2
+    restart: on-failure
+
   shlink:
     container_name: shlink-service
     image: shlinkio/shlink:stable
@@ -42,6 +44,8 @@ services:
       - db
     links:
       - db
+    restart: on-failure
+
   web:
     container_name: shlink-web
     image: shlinkio/shlink-web-client:stable
@@ -53,6 +57,7 @@ services:
       - shlink
     links:
       - shlink
+    restart: on-failure
 
 volumes:
   db-data:
