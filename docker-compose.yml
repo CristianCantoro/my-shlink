@@ -35,7 +35,7 @@ services:
       - DB_HOST=db
         # DB_PORT (optional)
       - DB_PORT=5432
-    entrypoint: ["/wait-for.sh", "db:5432", "-t", "15", "--", "/bin/sh", "./docker-entrypoint.sh"]
+    entrypoint: ["/wait-for.sh", "db:5432", "-t", "30", "--", "/bin/sh", "./docker-entrypoint.sh"]
     ports:
       - 127.0.0.1:9980:8080
     volumes:
