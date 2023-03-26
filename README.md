@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # My shlink instance
 
 My [shlink](https://github.com/shlinkio/shlink) instance deployed with docker compose.
